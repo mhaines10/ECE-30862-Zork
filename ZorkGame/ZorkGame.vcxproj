@@ -154,16 +154,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Creature.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="Room.h" />
+    <ClInclude Include="Trig.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Creature.cpp" />
+    <ClCompile Include="Item.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="Room.cpp" />
+    <ClCompile Include="Trig.cpp" />
     <ClCompile Include="ZorkGame.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="test1.xml" />
+    <Xml Include="test1.xml">
+      <SubType>Designer</SubType>
+    </Xml>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

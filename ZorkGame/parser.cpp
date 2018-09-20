@@ -1,6 +1,4 @@
 #include"parser.h"
-#include"Room.h"
-
 Parser::Parser(string filename) {
 	xml_document<> doc;
 	xml_node<> *rootNode;
@@ -9,18 +7,28 @@ Parser::Parser(string filename) {
 	buffer.push_back('\0');
 	doc.parse<0>(&buffer[0]);
 	rootNode = doc.first_node("map");
-	vector<Room*> tester;
-	getRooms(rootNode, tester);
-	
+	getFirstLevel(rootNode, Rooms, Creatures, Items);
+	/*for (int i = 0; i < Rooms.size(); i++) {
+		std::cout << Rooms[i]->name << " " << Rooms[i]->creatureList[0] << " " << std::endl;
+	}*/
+
 }
 
-Parser::~Parser( ){ }
+Parser::~Parser() { }
 
-void Parser::getRooms(xml_node<> * currNode, vector<Room*> &holder) {
+void Parser::getFirstLevel(xml_node<> * currNode, vector<Room*> &roomHolder, vector<Creature*> &creatHolder, vector<Item*> &itemHolder) {
 	for (xml_node<> * holdNode = currNode->first_node(); holdNode; holdNode = holdNode->next_sibling()) {
 		if (string(holdNode->name()) == "room") {
 			Room * temp = new Room(holdNode);
-			holder.push_back(temp);
+			roomHolder.push_back(temp);
+		}
+		if (string(holdNode->name()) == "creature"){
+			Creature * temp = new Creature(holdNode);
+			creatHolder.push_back(temp);
+		}
+		if (string(holdNode->name()) == "item") {
+			Item * temp = new Item(holdNode);
+			itemHolder.push_back(temp);
 		}
 	}
 }

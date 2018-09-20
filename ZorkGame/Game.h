@@ -4,5 +4,6 @@
 class Game {
 	Game();
 	virtual ~Game();
+	
 };
 #endif /*GAME_H_*/
