@@ -11,6 +11,7 @@
 #include"Room.h"
 #include"Creature.h"
 #include"Item.h"
+#include"Container.h"
 using namespace rapidxml;
 using namespace std;
 
@@ -23,8 +24,9 @@ public:
 	vector<Room*> Rooms;
 	vector<Item*> Items;
 	vector<Creature*> Creatures;
+	vector<Container*> Containers;
 
 private:
-	void getFirstLevel(xml_node<> *, vector<Room*> &, vector<Creature*> &, vector<Item*> &);
+	void getFirstLevel(xml_node<> *, vector<Room*> &, vector<Creature*> &, vector<Item*> &, vector<Container*> &);
 };
 #endif /* PARSER_H_*/

@@ -13,7 +13,9 @@ public:
 	string name;
 	string status;
 	string description;
-	string writing;
+	string writing = "";
+	string print = "";
+	string action = "";
 	Item(xml_node<> *);
 	virtual ~Item();
 

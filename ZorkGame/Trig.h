@@ -13,10 +13,12 @@ public:
 	virtual ~Trigger();
 	string type = "";
 	string command = "";
+	string trigStat = "";
 	string has = "";
 	string object = "";
 	string owner = "";
 	string print = "";
+	string executed = "no";
 	void generateTrigger(xml_node<> *);
 };
 #endif /*TRIG_H_*/

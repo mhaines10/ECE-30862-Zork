@@ -37,6 +37,5 @@ void Room::generateRoom(xml_node<> * currRoom) {
 		for (xml_node<> * creatHold = creatureHold; creatHold; creatHold = creatHold->next_sibling("Border")) {
 			creatureList.push_back(creatHold->value());
 		}
-		std::cout << creatureList[0] << std::endl;
 	}
 }
