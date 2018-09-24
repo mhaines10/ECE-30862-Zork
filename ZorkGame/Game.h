@@ -7,19 +7,20 @@ public:
 	Game(Parser *);
 	virtual ~Game();
 	Room * currRoom;
-	vector<pair<string,string>> inventory;
+	vector<Item*> inventory;
 	int errorHandle = 0;
 	int gameOver = 0;
 	void startGame(Parser *);
 	void checkInput(Parser *);
 	void movement(Parser *, string);
 	void defaultError(Parser *);
-	void executeTrig(Parser *);
+	bool executeTrig(Parser *, string);
 	void displayInventory();
 	void getRoomItem(Parser *, string);
 	void readItem(Parser *, string);
-	void turnonItem(Parser *, string);
-	void checkTrigs(Parser *);
+	bool turnonItem(string);
+	bool putItem(Parser *, string);
+	void openChest();
 	
 
 };

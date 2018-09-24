@@ -12,6 +12,9 @@ void Trigger::generateTrigger(xml_node<> * currNode) {
 	if (currNode->next_sibling("command")) {
 		command = currNode->next_sibling("command")->value();
 	}
+	if (currNode->previous_sibling("command")) {
+		command = currNode->previous_sibling("command")->value();
+	}
 	if (currNode->next_sibling("condition")) {
 		xml_node<> * temp = currNode->next_sibling("condition");
 		if (temp->first_node("has")) {

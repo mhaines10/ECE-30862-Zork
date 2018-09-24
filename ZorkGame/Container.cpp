@@ -2,15 +2,14 @@
 using namespace rapidxml;
 using namespace std;
 
-Container::Container(xml_node<> * currNode, string isInv) : Trigger() {
-	if (isInv == "no") {
-		generateContainer(currNode);
-	}
+Container::Container(xml_node<> * currNode, xml_node<> * rootNode) : Trigger() {
+
+	generateContainer(currNode,rootNode);
 }
 
 Container::~Container() {}
 
-void Container::generateContainer(xml_node<> * currNode) {
+void Container::generateContainer(xml_node<> * currNode, xml_node<> * rootNode) {
 	name = currNode->first_node("name")->value();
 	if (currNode->first_node("status")) {
 		status = currNode->first_node("status")->value();
@@ -30,9 +29,14 @@ void Container::generateContainer(xml_node<> * currNode) {
 	if (currNode->first_node("item")) {
 		xml_node<> * itemHold = currNode->first_node("item");
 		for (xml_node<> * holdNode = itemHold; holdNode; holdNode = holdNode->next_sibling("item")) {
-			itemList.push_back(holdNode->value());
+			string itemName = holdNode->value();
+			for (xml_node<> * holderNode = rootNode->first_node("item"); holderNode; holderNode = holderNode->next_sibling("item")) {
+				if (holderNode->first_node("name")->value() == itemName) {
+					xml_node<> * itemNode = holderNode;
+					Item * currItem = new Item(itemNode);
+					itemList.push_back(currItem);
+				}
+			}
 		}
 	}
-
-
 }

@@ -19,20 +19,8 @@ Parser::~Parser() { }
 void Parser::getFirstLevel(xml_node<> * currNode, vector<Room*> &roomHolder, vector<Creature*> &creatHolder, vector<Item*> &itemHolder, vector<Container*> &contHolder) {
 	for (xml_node<> * holdNode = currNode->first_node(); holdNode; holdNode = holdNode->next_sibling()) {
 		if (string(holdNode->name()) == "room") {
-			Room * temp = new Room(holdNode);
+			Room * temp = new Room(holdNode,currNode);
 			roomHolder.push_back(temp);
-		}
-		if (string(holdNode->name()) == "creature"){
-			Creature * temp = new Creature(holdNode);
-			creatHolder.push_back(temp);
-		}
-		if (string(holdNode->name()) == "item") {
-			Item * temp = new Item(holdNode);
-			itemHolder.push_back(temp);
-		}
-		if (string(holdNode->name()) == "container") {
-			Container * temp = new Container(holdNode, "no");
-			contHolder.push_back(temp);
 		}
 	}
 }

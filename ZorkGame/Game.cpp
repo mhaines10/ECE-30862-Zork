@@ -1,5 +1,8 @@
 #include"Game.h"
 #include<algorithm>
+#include<sstream>
+#include<iostream>
+#include <iterator>
 using namespace rapidxml;
 using namespace std;
 
@@ -23,11 +26,10 @@ void Game::startGame(Parser * fullParse) {
 
 void Game::checkInput(Parser * fullParse) {
 	string input;
+	bool errorCheck;
 	getline(cin, input);
-	if (currRoom->command == input) {
-		executeTrig(fullParse);
-	}
-	if ((input == "n" || input == "s" || input == "w" || input == "e") && errorHandle == 0) {
+	errorCheck = executeTrig(fullParse, input);
+	if ((input == "n" || input == "s" || input == "w" || input == "e") && errorCheck == true) {
 		movement(fullParse, input);
 	}
 	else if (input.substr(0,4) == "take") {
@@ -39,15 +41,14 @@ void Game::checkInput(Parser * fullParse) {
 	else if (input.substr(0, 4) == "read") {
 		readItem(fullParse, input.substr(5));
 	}
-	else if (input.substr(0, 7) == "turn on") {
-		turnonItem(fullParse, input.substr(8));
+	else if (input.substr(0, 4) == "open") {
+		openChest();
 	}
-	else if (errorHandle == 0) {
-		defaultError(fullParse);
+	else if (errorCheck != false && input.substr(0,7) != "turn on") {
+		cout << "Error" << endl;
 	}
 	return;
 }	
-
 
 void Game::movement(Parser * fullParse, string direction) {
 	string compareHold = "";
@@ -74,75 +75,94 @@ void Game::movement(Parser * fullParse, string direction) {
 				if (fullParse->Rooms[j]->name == nameHold) {
 					currRoom = fullParse->Rooms[j];
 					std::cout << currRoom->description << std::endl;
-					executeTrig(fullParse);
 					break;
 				}
 			}
+			break;
 		}
-		else if (i == currRoom->borderList.size() - 1 && string(currRoom->borderList[i].first) != compareHold) {
+		else if ((i == currRoom->borderList.size() - 1 )&& string(currRoom->borderList[i].first) != compareHold) {
 				std::cout << "Can't go that way." << std::endl;
+				break;
 		}
 	}
 }
 
 void Game::defaultError(Parser * fullParse) {
 	std::cout << "Error" << std::endl;
-	checkInput(fullParse);
 }
 
-void Game::executeTrig(Parser * fullParse) {
-	//Checking to see if non-permanent Trigger already used
-	if (currRoom->type == "single" && currRoom->executed == "yes") {
-		return;
-	}
-	//Checking for Inventory Trigger
-	if (currRoom->has == "no" && currRoom->owner == "inventory") {
-		if (inventory.size() == 0) {
-			if (currRoom->print != "") {
-				std::cout << currRoom->print << std::endl;
-				errorHandle = 1;
+bool Game::executeTrig(Parser * fullParse, string input) {
+	if (input == "n" || input == "s" || input == "e" || input == "w"){
+		//Checking Current Room Triggers and if they are permanent
+		if (currRoom->command == input && (currRoom->type == "permanent" || currRoom->executed != "yes")) {
+			//Checking if trigger is inventory based
+			if (currRoom->has == "no" && currRoom->owner == "inventory") {
+				if (inventory.size() == 0) {
+					if (currRoom->print != "") {
+						std::cout << currRoom->print << std::endl;
+						return false;
+					}
+				}
+				else if (inventory.size() > 0) {
+					for (int x = 0; x < inventory.size(); x++){
+						if (inventory[x]->name == currRoom->object) {
+							return true;
+						}
+						else if (x == inventory.size() - 1 && inventory[x]->name != currRoom->object) {
+							if (currRoom->print != "") {
+								std::cout << currRoom->print << std::endl;
+								return false;
+							}
+						}
+					
+					}	
+				}
 			}
+			else if (currRoom->object == "lock" && currRoom->trigStat == "locked") {
+				cout << currRoom->print << endl;
+				return false;
+			}
+			return true;
 		}
-		else if (inventory.size() > 0) {
-			int flag = 0;
-			for (int i = 0; i < inventory.size(); i++) {
-				if (inventory[i].first == currRoom->object) {
-					flag = 1;
-				}
-			}
-			if (flag == 0) {
-				if (currRoom->print != "") {
-					std::cout << currRoom->print << std::endl;
-					errorHandle = 1;
-				}
-			}
-			else {
-				errorHandle = 0;
-			}
-		}
-	}
-	//Find Creature Triggers
-	if (currRoom->creatureList.size() != 0) {
-		for (int i = 0; i < currRoom->creatureList.size(); i++) {
-			Creature * creatHold = nullptr;
-			for (int j = 0; j < fullParse->Creatures.size(); j++) {
-				if (currRoom->creatureList[i] == fullParse->Creatures[j]->name) {
-					creatHold = fullParse->Creatures[j];
-					break;
-				}
-			}
-			if (creatHold != nullptr) {
-				for (int x = 0; x < inventory.size(); x++) {
-					if (inventory[x].first == creatHold->object) {
-						if (creatHold->trigStat == inventory[x].second) {
-							cout << creatHold->print << endl;
+		//Check if item is already activated before changing rooms
+		else {
+			for (int y = 0; y < inventory.size(); y++) {
+				for (int z = 0; z < currRoom->creatureList.size(); z++) {
+					if (inventory[y]->name == currRoom->creatureList[z]->object) {
+						if (inventory[y]->status == currRoom->creatureList[z]->trigStat) {
+							if (currRoom->creatureList[z]->print != "") {
+								cout << currRoom->creatureList[z]->print << endl;
+							}
 						}
 					}
 				}
 			}
 		}
+		return true;
 	}
-	return;
+	//Finding item linked triggers
+	if (input.substr(0,7) == "turn on"){
+		if (turnonItem(input.substr(8))) {
+			for (int l = 0; l < inventory.size(); l++) {
+				if (inventory[l]->name == input.substr(8)) {
+					for (int xi = 0; xi < currRoom->creatureList.size(); xi++) {
+						if (currRoom->creatureList[xi]->object == inventory[l]->name && currRoom->creatureList[xi]->trigStat == inventory[l]->status) {
+							cout << currRoom->creatureList[xi]->print << endl;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		else {
+			cout << "Error" << endl;
+			return false;
+		}
+	}
+	if (input.substr(0, 3) == "put") {
+		putItem(fullParse, input);
+	}
+	return true;
 }
 void Game::displayInventory() {
 	if (inventory.size() == 0) {
@@ -150,72 +170,100 @@ void Game::displayInventory() {
  	}
 	else {
 		for (int i = 0; i < inventory.size(); i++) {
-			cout << inventory[i].first << " ";
+			if (i == inventory.size() - 1) {
+				cout << inventory[i]->name << endl;
+			}
+			else {
+				cout << inventory[i]->name << ",";
+			}
 		}
-		cout << " " << endl;
 	}
 	return;
 }
 
 void Game::getRoomItem(Parser * fullParse, string getItem) {
-	if (find(currRoom->itemList.begin(), currRoom->itemList.end(), getItem) != currRoom->itemList.end()) {
-		string newStat;
-		for (int i = 0; i < fullParse->Items.size(); i++) {
-			if (fullParse->Items[i]->name == getItem) {
-				newStat = fullParse->Items[i]->status;
-				break;
+	int stopFlag = 0;
+	int errorFlag1 = 0;
+	for (int i = 0; i < currRoom->itemList.size(); i++) {
+		if (currRoom->itemList[i]->name == getItem) {
+			inventory.push_back(currRoom->itemList[i]);
+			cout << "Item " << getItem << " added to inventory." << endl;
+			currRoom->itemList.erase(remove_if(currRoom->itemList.begin(), currRoom->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->itemList.end());
+			stopFlag = 1;
+		}
+	}
+	if (stopFlag != 1) {
+		for (int y = 0; y < currRoom->containerList.size(); y++) {
+			if (currRoom->containerList[y]->name == "chest") {
+				for (int x = 0; x < currRoom->containerList[y]->itemList.size(); x++) {
+					if (currRoom->containerList[y]->itemList[x]->name == getItem) {
+						inventory.push_back(currRoom->containerList[y]->itemList[x]);
+						currRoom->containerList[y]->itemList.erase(remove_if(currRoom->containerList[y]->itemList.begin(), currRoom->containerList[y]->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->containerList[y]->itemList.end());
+						errorFlag1 = 1;
+						cout << "Item " << getItem << " added to inventory." << endl;
+					}
+				}
 			}
 		}
-		pair<string, string> addition;
-		addition.first = getItem;
-		addition.second = newStat;
-		inventory.push_back(addition);
-		remove(currRoom->itemList.begin(), currRoom->itemList.end(), getItem);
-		cout << "Item " << getItem << " added to inventory." << endl;
 	}
-	else {
+	if (errorFlag1 != 1 && stopFlag == 0) {
 		cout << "Error" << endl;
 	}
 }
 
 void Game::readItem(Parser * fullParse, string itemRead) {
 	for (int j = 0; j < inventory.size(); j++) {
-		if (inventory[j].first == itemRead) {
-			for (int i = 0; i < fullParse->Items.size(); i++) {
-				if (fullParse->Items[i]->name == itemRead) {
-					if (!fullParse->Items[i]->writing.empty()) {
-						cout << fullParse->Items[i]->writing << endl;
-						executeTrig(fullParse);
-						return;
-					}
-				}
-			}
+		if (inventory[j]->name == itemRead && inventory[j]->writing != "") {
+			cout << inventory[j]->writing << endl;
+			return;
 		}
 	}
 	cout << "Error" << endl;
 }
 
-void Game::turnonItem(Parser * fullParse, string itemName) {
-	string newStat = "";
-	for (int x = 0; x < inventory.size(); x++) {
-		if (inventory[x].first == itemName){
-			for (int i = 0; i < fullParse->Items.size(); i++) {
-				if (fullParse->Items[i]->name == itemName) {
-					if (!fullParse->Items[i]->action.empty()) {
-						auto index = fullParse->Items[i]->action.find_last_of(' ');
-						fullParse->Items[i]->status = fullParse->Items[i]->action.substr(++index);
-						newStat = fullParse->Items[i]->status;
-						cout << fullParse->Items[i]->print << endl;
-						inventory[x].second = newStat;
-						return;
-					}
-				}
+bool Game::turnonItem(string itemName) {
+	for (int i = 0; i < inventory.size(); i++){
+		if (inventory[i]->name == itemName) {
+			if (inventory[i]->print != "") {
+				cout << inventory[i]->print << endl;
+				auto index = inventory[i]->action.find_last_of(" ");
+				inventory[i]->status = inventory[i]->action.substr(++index);
+				return true;
 			}
 		}
 	}
 	cout << "Error" << endl;
+	return false;
+}
+bool Game::putItem(Parser * fullParse, string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	for (int i = 0; i < inventory.size(); i++) {
+		if (inventory[i]->name == temp[1]) {
+			for (int x = 0; x < currRoom->containerList.size(); x++) {
+				if (currRoom->containerList[x]->name == temp[3] && ((find(currRoom->containerList[i]->acceptList.begin(), currRoom->containerList[i]->acceptList.end(),temp[1]) != currRoom->containerList[i]->acceptList.end()) || currRoom->containerList[i]->acceptList.empty())) {
+					currRoom->containerList[x]->itemList.push_back(inventory[i]);
+					inventory.erase(remove_if(inventory.begin(),inventory.end(), [&input](auto & elem) {return elem->name == input; }), inventory.end());
+					return true;
+
+				}
+			}
+		}
+	}
+	return false;
 }
 
-void Game::checkTrigs(Parser * fullParse) {
-
+void Game::openChest() {
+	for (int i = 0; i < currRoom->containerList.size(); i++) {
+		if (currRoom->containerList[i]->name == "chest") {
+			for (int x = 0; x < currRoom->containerList[i]->itemList.size(); x++) {
+				cout << currRoom->containerList[i]->itemList[x]->name << endl;
+			}
+			return;
+		}
+	}
+	cout << "Error" << endl;
+	return;
 }

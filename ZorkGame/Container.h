@@ -6,17 +6,18 @@
 #include<vector>
 #include<iostream>
 #include"Trig.h"
+#include"Item.h"
 
 class Container : public Trigger {
 public:
-	Container(xml_node<> *, string);
+	Container(xml_node<> *,xml_node<> *);
 	virtual ~Container();
 	string name = "";
 	string status = "";
 	string description = "";
 	vector<string> acceptList;
-	vector<string> itemList;
+	vector<Item*> itemList;
 private:
-	void generateContainer(xml_node<> *);
+	void generateContainer(xml_node<> *, xml_node<> *);
 };
 #endif /*CONTAINER_H_*/
