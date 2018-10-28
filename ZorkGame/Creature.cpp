@@ -21,6 +21,7 @@ void Creature::generateCreature(xml_node<> * currNode) {
 		for (xml_node<> * holdNode = vulnHold; holdNode; holdNode = holdNode->next_sibling("vulnerability")) {
 			vulnerability.push_back(holdNode->value());
 		}
+
 	}
 	if (currNode->first_node("trigger")) {
 		xml_node<> * holder = currNode->first_node("trigger");

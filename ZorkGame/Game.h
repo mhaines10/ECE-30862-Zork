@@ -21,6 +21,7 @@ public:
 	bool turnonItem(string);
 	bool putItem(Parser *, string);
 	void openChest();
+	void attackCreat(Parser *, string, string);
 	
 
 };

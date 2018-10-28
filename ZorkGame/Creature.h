@@ -16,7 +16,7 @@ public:
 	string status;
 	string description;
 	vector<string> vulnerability;
-	vector<string> accept;
+	vector<string> condition;
 	vector<string> item;
 	string attack;
 private:

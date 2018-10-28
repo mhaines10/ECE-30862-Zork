@@ -267,3 +267,20 @@ void Game::openChest() {
 	cout << "Error" << endl;
 	return;
 }
+void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
+	for (int i = 0; i < currRoom->creatureList.size(); i++) {
+		if (currRoom->creatureList[i]->name == Creat) {
+			for (int k = 0; k < inventory.size(); k++) {
+				if (inventory[k]->name == attackItem) {
+					for (int j = 0; j < currRoom->creatureList[i]->vulnerability.size(); j++) {
+						if (currRoom->creatureList[i]->vulnerability[j] == attackItem) {
+							for (currRoom->creatureList[i]->{
+							}
+						}
+					}
+				}
+			}
+			
+		}
+	}
+}
