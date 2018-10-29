@@ -16,9 +16,10 @@ public:
 	string status;
 	string description;
 	vector<string> vulnerability;
-	vector<string> condition;
+	vector<pair<string,string>> condition;
 	vector<string> item;
-	string attack;
+	vector<string> actions;
+	string print;
 private:
 	void generateCreature(xml_node<> *);
 };

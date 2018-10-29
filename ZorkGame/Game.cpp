@@ -274,13 +274,54 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 				if (inventory[k]->name == attackItem) {
 					for (int j = 0; j < currRoom->creatureList[i]->vulnerability.size(); j++) {
 						if (currRoom->creatureList[i]->vulnerability[j] == attackItem) {
-							for (currRoom->creatureList[i]->{
+							for (int xi = 0; currRoom->creatureList[i]->condition.size(); xi++){
+								if (currRoom->creatureList[i]->condition[xi].first == attackItem) {
+									if (inventory[k]->status == currRoom->creatureList[i]->condition[xi].second) {
+										cout << currRoom->creatureList[i]->print << endl;
+										actionParse(currRoom->creatureList[i],fullParse);
+									}
+									else {
+										cout << "Error" << endl;
+										break;
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 			
+		}
+	}
+}
+void Game::actionParse(Creature * inCreat, Parser * fullParse) {
+	for (int i = 0; i < inCreat->actions.size(); i++) {
+		vector<string> temp;
+		istringstream iss(inCreat->actions[i]);
+		string itemHodler;
+		copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+		if (temp[0] == "Delete") {
+			delete(inCreat);
+		}
+		if (temp[0] == "Add") {
+			for (int z = 0; z < fullParse->Rooms.size(); z++) {
+				if (temp[3] == fullParse->Rooms[z]->name) {
+					for (int xy = 0; xy < fullParse->Items.size(); xy++) {
+						if (fullParse->Items[xy]->name == temp[1]) {
+							fullParse->Rooms[z]->itemList.push_back(fullParse->Items[xy]);
+						}
+					}
+				}
+			}
+			for (int z1 = 0; z1 < fullParse->Containers.size(); z1++) {
+				if (temp[3] == fullParse->Containers[z1]->name) {
+					for (int xy1 = 0; xy1 < fullParse->Items.size(); xy1++) {
+						if (fullParse->Items[xy1]->name == temp[1]) {
+							fullParse->Containers[z1]->itemList.push_back(fullParse->Items[xy1]);
+						}
+					}
+				}
+			}
 		}
 	}
 }

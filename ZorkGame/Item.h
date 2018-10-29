@@ -21,6 +21,7 @@ public:
 
 private:
 	void generateItem(xml_node<> *);
+	void generateItem(string);
 };
 
 #endif /*ITEM_H_*/

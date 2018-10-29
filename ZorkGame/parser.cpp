@@ -22,6 +22,15 @@ void Parser::getFirstLevel(xml_node<> * currNode, vector<Room*> &roomHolder, vec
 			Room * temp = new Room(holdNode,currNode);
 			roomHolder.push_back(temp);
 		}
+		if (string(holdNode->name()) == "item") {
+			Item * tempItem = new Item(holdNode);
+			itemHolder.push_back(tempItem);
+		}
+		if (string(holdNode->name()) == "container") {
+			Container * tempCont = new Container(holdNode,currNode);
+			contHolder.push_back(tempCont);
+		}
+
 	}
 }
 

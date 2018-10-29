@@ -22,6 +22,7 @@ public:
 	bool putItem(Parser *, string);
 	void openChest();
 	void attackCreat(Parser *, string, string);
+	void actionParse(Creature *, Parser *);
 	
 
 };
