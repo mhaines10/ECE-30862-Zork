@@ -49,7 +49,7 @@ void Creature::generateCreature(xml_node<> * currNode) {
 	if (currNode->first_node("trigger")) {
 		xml_node<> * holder = currNode->first_node("trigger");
 		for (xml_node<> * holdNode = holder; holdNode; holdNode = holdNode->next_sibling("trigger")) {
-			generateTrigger(holder->first_node("type"));
+			generateTrigger(holder);
 		}
 	}
 	if (currNode->first_node("item")) {

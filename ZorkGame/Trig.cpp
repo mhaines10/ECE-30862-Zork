@@ -7,8 +7,30 @@ Trigger::Trigger() {}
 
 Trigger::~Trigger() {}
 
-void Trigger::generateTrigger(xml_node<> * currNode) {
-	type = currNode->value();
+void Trigger::generateTrigger(xml_node<> * currNode1) {
+	xml_node<> * currNode;
+	if (currNode1->first_node("type")) {
+		type = currNode1->first_node("type")->value();
+		currNode = currNode1->first_node("type");
+	}
+	else if (currNode1->first_node("condition")) {
+		currNode = currNode1->first_node("condition");
+		if (currNode->first_node("has")) {
+			has = currNode->first_node("has")->value();
+		}
+		if (currNode->first_node("object")) {
+			object = currNode->first_node("object")->value();
+		}
+		if (currNode->first_node("owner")) {
+			owner = currNode->first_node("owner")->value();
+		}
+		if (currNode->first_node("status")) {
+			trigStat = currNode->first_node("status")->value();
+		}
+	}
+	else {
+		currNode = currNode1->first_node();
+	}
 	if (currNode->next_sibling("command")) {
 		command = currNode->next_sibling("command")->value();
 	}

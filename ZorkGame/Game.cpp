@@ -129,11 +129,18 @@ bool Game::executeTrig(Parser * fullParse, string input) {
 					}	
 				}
 			}
-			else if (currRoom->object == "lock" && currRoom->trigStat == "locked") {
-				cout << currRoom->print << endl;
+			else if (currRoom->object == "lock") {
+				for (int xi = 0; xi < currRoom->containerList.size(); xi++) {
+					if (currRoom->containerList[xi]->name == "lock" && currRoom->containerList[xi]->status == "locked") {
+						cout << currRoom->print << endl;
+						return false;
+					}
+					else {
+						return true;
+					}
+				}
 				return false;
 			}
-			return true;
 		}
 		//Check if item is already activated before changing rooms
 		else {
@@ -259,18 +266,15 @@ bool Game::putItem(Parser * fullParse, string input) {
 					for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
 						if (currRoom->containerList[x]->acceptList[y] == temp[1]) {
 							currRoom->containerList[x]->itemList.push_back(inventory[i]);
-							cout << currRoom->containerList[x]->has << endl;
-							cout << currRoom->containerList[x]->object << endl;
 							if (currRoom->containerList[x]->has == "yes" && currRoom->containerList[x]->object == inventory[i]->name){
-								cout << "here2" << endl;
 								cout << currRoom->containerList[x]->print << endl;
 								vector<string> temp1;
 								istringstream iss(currRoom->containerList[x]->action);
 								string itemHodler;
 								copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp1));
 								if (temp[0] == "Update" && temp[3] == "unlocked") {
-									cout << "here3" << endl;
 									currRoom->containerList[x]->status = "unlocked";
+									currRoom->trigStat = "unlocked";
 								}
 							}
 							inventory.erase(inventory.begin() + i);

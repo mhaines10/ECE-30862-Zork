@@ -19,7 +19,7 @@ void Room::generateRoom(xml_node<> * currRoom, xml_node<> * rootNode) {
 	}
 	if (currRoom->first_node("trigger")) {
 		xml_node<> * holder = currRoom->first_node("trigger");
-		generateTrigger(holder->first_node("type"));
+		generateTrigger(holder);
 	}
 	if (currRoom->first_node("border")) {
 		xml_node<> * bordHold = currRoom->first_node("border");
