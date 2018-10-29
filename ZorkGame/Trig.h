@@ -18,6 +18,7 @@ public:
 	string object = "";
 	string owner = "";
 	string print = "";
+	string action = "";
 	string executed = "no";
 	void generateTrigger(xml_node<> *);
 };

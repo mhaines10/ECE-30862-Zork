@@ -19,6 +19,7 @@ public:
 	string name = "";
 	//string status = "";
 	string description = "";
+	string type = "";
 	vector<Creature*> creatureList;
 	vector<Container*> containerList;
 	vector<Item*> itemList;

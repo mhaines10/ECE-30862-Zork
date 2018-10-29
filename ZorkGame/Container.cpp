@@ -23,6 +23,7 @@ void Container::generateContainer(xml_node<> * currNode, xml_node<> * rootNode) 
 	if (currNode->first_node("trigger")) {
 		xml_node<> * trigHold = currNode->first_node("trigger");
 		for (xml_node<> * holdNode = trigHold; holdNode; holdNode = holdNode->next_sibling("trigger")) {
+
 			generateTrigger(holdNode);
 		}
 	}

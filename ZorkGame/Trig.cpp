@@ -33,5 +33,8 @@ void Trigger::generateTrigger(xml_node<> * currNode) {
 	if (currNode->next_sibling("print")) {
 		print = currNode->next_sibling("print")->value();
 	}
+	if (currNode->next_sibling("action")) {
+		action = currNode->next_sibling("action")->value();
+	}
 	
 }

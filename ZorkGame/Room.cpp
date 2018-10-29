@@ -11,6 +11,9 @@ Room::~Room( ) { }
 
 void Room::generateRoom(xml_node<> * currRoom, xml_node<> * rootNode) {
 	name = currRoom->first_node("name")->value();
+	if (currRoom->first_node("type")) {
+		type = currRoom->first_node("type")->value();
+	}
 	if (currRoom->first_node("description")){
 		description = currRoom->first_node("description")->value();
 	}

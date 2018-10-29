@@ -2,6 +2,7 @@
 #define CREATURE_H_
 #include <stdio.h>
 #include<string>
+#include<iostream>
 #include<rapidxml.hpp>
 #include<vector>
 #include"Trig.h"
@@ -19,7 +20,7 @@ public:
 	vector<pair<string,string>> condition;
 	vector<string> item;
 	vector<string> actions;
-	string print;
+	string printAct;
 private:
 	void generateCreature(xml_node<> *);
 };

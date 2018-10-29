@@ -44,7 +44,14 @@ void Game::checkInput(Parser * fullParse) {
 	else if (input.substr(0, 4) == "open") {
 		openChest();
 	}
-	else if (errorCheck != false && input.substr(0,7) != "turn on") {
+	else if (input.substr(0, 6) == "attack") {
+		vector<string> temp;
+		istringstream iss(input);
+		string itemHodler;
+		copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+		attackCreat(fullParse, temp[1], temp[3]);
+	}
+	else if (errorCheck != false && input.substr(0,7) != "turn on" && input.substr(0,3) != "put") {
 		cout << "Error" << endl;
 	}
 	return;
@@ -75,6 +82,10 @@ void Game::movement(Parser * fullParse, string direction) {
 				if (fullParse->Rooms[j]->name == nameHold) {
 					currRoom = fullParse->Rooms[j];
 					std::cout << currRoom->description << std::endl;
+					if (currRoom->type == "exit") {
+						cout << "You have completed the Game" << endl;
+						gameOver = 1;
+					}
 					break;
 				}
 			}
@@ -242,12 +253,30 @@ bool Game::putItem(Parser * fullParse, string input) {
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
 	for (int i = 0; i < inventory.size(); i++) {
 		if (inventory[i]->name == temp[1]) {
-			for (int x = 0; x < currRoom->containerList.size(); x++) {
-				if (currRoom->containerList[x]->name == temp[3] && ((find(currRoom->containerList[i]->acceptList.begin(), currRoom->containerList[i]->acceptList.end(),temp[1]) != currRoom->containerList[i]->acceptList.end()) || currRoom->containerList[i]->acceptList.empty())) {
-					currRoom->containerList[x]->itemList.push_back(inventory[i]);
-					inventory.erase(remove_if(inventory.begin(),inventory.end(), [&input](auto & elem) {return elem->name == input; }), inventory.end());
-					return true;
 
+			for (int x = 0; x < currRoom->containerList.size(); x++) {
+				if (currRoom->containerList[x]->name == temp[3]){
+					for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
+						if (currRoom->containerList[x]->acceptList[y] == temp[1]) {
+							currRoom->containerList[x]->itemList.push_back(inventory[i]);
+							cout << currRoom->containerList[x]->has << endl;
+							cout << currRoom->containerList[x]->object << endl;
+							if (currRoom->containerList[x]->has == "yes" && currRoom->containerList[x]->object == inventory[i]->name){
+								cout << "here2" << endl;
+								cout << currRoom->containerList[x]->print << endl;
+								vector<string> temp1;
+								istringstream iss(currRoom->containerList[x]->action);
+								string itemHodler;
+								copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp1));
+								if (temp[0] == "Update" && temp[3] == "unlocked") {
+									cout << "here3" << endl;
+									currRoom->containerList[x]->status = "unlocked";
+								}
+							}
+							inventory.erase(inventory.begin() + i);
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -277,8 +306,9 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 							for (int xi = 0; currRoom->creatureList[i]->condition.size(); xi++){
 								if (currRoom->creatureList[i]->condition[xi].first == attackItem) {
 									if (inventory[k]->status == currRoom->creatureList[i]->condition[xi].second) {
-										cout << currRoom->creatureList[i]->print << endl;
+										cout << currRoom->creatureList[i]->printAct << endl;
 										actionParse(currRoom->creatureList[i],fullParse);
+										return;
 									}
 									else {
 										cout << "Error" << endl;
@@ -293,6 +323,8 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 			
 		}
 	}
+	cout << "Error" << endl;
+	return;
 }
 void Game::actionParse(Creature * inCreat, Parser * fullParse) {
 	for (int i = 0; i < inCreat->actions.size(); i++) {

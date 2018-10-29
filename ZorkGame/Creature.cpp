@@ -20,11 +20,15 @@ void Creature::generateCreature(xml_node<> * currNode) {
 		xml_node<> * vulnHold = currNode->first_node("vulnerability");
 		for (xml_node<> * holdNode = vulnHold; holdNode; holdNode = holdNode->next_sibling("vulnerability")) {
 			vulnerability.push_back(holdNode->value());
-			if (vulnHold->first_node("condition")) {
-				if (vulnHold->first_node("condition")->first_node("object")) {
-					xml_node<> * condNode = vulnHold->first_node("condition");
-					condition.push_back(make_pair(condNode->first_node("object")->value(),condNode->first_node("status")->value()));
-				}
+			//fix this part
+			if (holdNode->next_sibling("attack")) {
+				xml_node<> * temp1 = holdNode->next_sibling("attack");
+				if (temp1->first_node("condition")) {
+					xml_node<> * temp2 = temp1->first_node("condition");
+					if (temp2->first_node("object") && temp2->first_node("status")) {
+						condition.push_back(make_pair(temp2->first_node("object")->value(), temp2->first_node("status")->value()));
+					}
+				}	
 			}
 		}
 		
@@ -33,7 +37,7 @@ void Creature::generateCreature(xml_node<> * currNode) {
 		xml_node<> * holder = currNode->first_node("attack");
 		for (xml_node<> * holdNode = holder; holdNode; holdNode = holdNode->next_sibling("attack")) {
 			if (holdNode->first_node("print")) {
-				print = holdNode->first_node("print")->value();
+				printAct = holdNode->first_node("print")->value();
 			}
 			if (holdNode->first_node("action")) {
 				for (xml_node<> * actHold = holdNode->first_node("action"); actHold; actHold = actHold->next_sibling("action")) {
