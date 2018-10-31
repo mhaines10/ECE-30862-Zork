@@ -17,6 +17,7 @@ public:
 	string description = "";
 	vector<string> acceptList;
 	vector<Item*> itemList;
+	vector<Trigger *> trigList;
 private:
 	void generateContainer(xml_node<> *, xml_node<> *);
 };

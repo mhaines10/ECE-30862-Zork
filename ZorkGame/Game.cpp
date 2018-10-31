@@ -3,6 +3,7 @@
 #include<sstream>
 #include<iostream>
 #include <iterator>
+#include<string>
 using namespace rapidxml;
 using namespace std;
 
@@ -28,11 +29,8 @@ void Game::checkInput(Parser * fullParse) {
 	string input;
 	bool errorCheck;
 	getline(cin, input);
-	errorCheck = executeTrig(fullParse, input);
-	if ((input == "n" || input == "s" || input == "w" || input == "e") && errorCheck == true) {
-		movement(fullParse, input);
-	}
-	else if (input.substr(0,4) == "take") {
+	errorCheck = newTrigHand(fullParse, input);
+	if (input.substr(0,4) == "take") {
 		getRoomItem(fullParse, input.substr(5));
 	}
 	else if ( input == "i") {
@@ -51,9 +49,9 @@ void Game::checkInput(Parser * fullParse) {
 		copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
 		attackCreat(fullParse, temp[1], temp[3]);
 	}
-	else if (errorCheck != false && input.substr(0,7) != "turn on" && input.substr(0,3) != "put") {
-		cout << "Error" << endl;
-	}
+	//else if (errorCheck != false && input.substr(0,7) != "turn on" && input.substr(0,3) != "put") {
+	//	std::cout << "Error" << endl;
+	//}
 	return;
 }	
 
@@ -102,86 +100,6 @@ void Game::defaultError(Parser * fullParse) {
 	std::cout << "Error" << std::endl;
 }
 
-bool Game::executeTrig(Parser * fullParse, string input) {
-	if (input == "n" || input == "s" || input == "e" || input == "w"){
-		//Checking Current Room Triggers and if they are permanent
-		if (currRoom->command == input && (currRoom->type == "permanent" || currRoom->executed != "yes")) {
-			//Checking if trigger is inventory based
-			if (currRoom->has == "no" && currRoom->owner == "inventory") {
-				if (inventory.size() == 0) {
-					if (currRoom->print != "") {
-						std::cout << currRoom->print << std::endl;
-						return false;
-					}
-				}
-				else if (inventory.size() > 0) {
-					for (int x = 0; x < inventory.size(); x++){
-						if (inventory[x]->name == currRoom->object) {
-							return true;
-						}
-						else if (x == inventory.size() - 1 && inventory[x]->name != currRoom->object) {
-							if (currRoom->print != "") {
-								std::cout << currRoom->print << std::endl;
-								return false;
-							}
-						}
-					
-					}	
-				}
-			}
-			else if (currRoom->object == "lock") {
-				for (int xi = 0; xi < currRoom->containerList.size(); xi++) {
-					if (currRoom->containerList[xi]->name == "lock" && currRoom->containerList[xi]->status == "locked") {
-						cout << currRoom->print << endl;
-						return false;
-					}
-					else {
-						return true;
-					}
-				}
-				return false;
-			}
-		}
-		//Check if item is already activated before changing rooms
-		else {
-			for (int y = 0; y < inventory.size(); y++) {
-				for (int z = 0; z < currRoom->creatureList.size(); z++) {
-					if (inventory[y]->name == currRoom->creatureList[z]->object) {
-						if (inventory[y]->status == currRoom->creatureList[z]->trigStat) {
-							if (currRoom->creatureList[z]->print != "") {
-								cout << currRoom->creatureList[z]->print << endl;
-							}
-						}
-					}
-				}
-			}
-		}
-		return true;
-	}
-	//Finding item linked triggers
-	if (input.substr(0,7) == "turn on"){
-		if (turnonItem(input.substr(8))) {
-			for (int l = 0; l < inventory.size(); l++) {
-				if (inventory[l]->name == input.substr(8)) {
-					for (int xi = 0; xi < currRoom->creatureList.size(); xi++) {
-						if (currRoom->creatureList[xi]->object == inventory[l]->name && currRoom->creatureList[xi]->trigStat == inventory[l]->status) {
-							cout << currRoom->creatureList[xi]->print << endl;
-							return true;
-						}
-					}
-				}
-			}
-		}
-		else {
-			cout << "Error" << endl;
-			return false;
-		}
-	}
-	if (input.substr(0, 3) == "put") {
-		putItem(fullParse, input);
-	}
-	return true;
-}
 void Game::displayInventory() {
 	if (inventory.size() == 0) {
 		cout << "Inventory: empty" << endl;
@@ -242,11 +160,19 @@ void Game::readItem(Parser * fullParse, string itemRead) {
 bool Game::turnonItem(string itemName) {
 	for (int i = 0; i < inventory.size(); i++){
 		if (inventory[i]->name == itemName) {
-			if (inventory[i]->print != "") {
-				cout << inventory[i]->print << endl;
-				auto index = inventory[i]->action.find_last_of(" ");
-				inventory[i]->status = inventory[i]->action.substr(++index);
-				return true;
+			if (inventory[i]->action != ""){
+				vector<string> temp;
+				istringstream iss(inventory[i]->action);
+				string itemHodler;
+				copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+				if (temp[0] == "drop" || temp[0] == "Drop") {
+					//dropStuff();
+				}
+				else {
+					inventory[i]->status = temp[3];
+					cout << inventory[i]->print << endl;
+					return true;
+				}
 			}
 		}
 	}
@@ -360,4 +286,103 @@ void Game::actionParse(Creature * inCreat, Parser * fullParse) {
 			}
 		}
 	}
+}
+bool Game::newTrigHand(Parser * fullParse, string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	//Movement triggered Events
+	if (input == "n" || input == "s" || input == "e" || input == "w" ) {
+		if (currRoom->hasTrig == true) {
+			for (int i = 0; i < currRoom->trigList.size(); i++) {
+				if (currRoom->trigList[i]->command == input && (currRoom->trigList[i]->type == "permanent" || currRoom->trigList[i]->executed != "yes")) {
+					if (currRoom->trigList[i]->owner == "inventory" && currRoom->trigList[i]->has == "no") {
+						if (inventory.size() != 0) {
+							for (int x = 0; x < inventory.size(); x++) {
+								cout << currRoom->trigList[i]->object << endl;
+								if (currRoom->trigList[i]->object == inventory[x]->name) {
+									movement(fullParse, input);
+									break;
+								}
+								else if (x == (inventory.size() - 1)) {
+									cout << currRoom->trigList[i]->print << endl;
+									return false;
+								}
+							}
+						}
+						else {
+							cout << currRoom->trigList[i]->print << endl;
+							return false;
+						}
+					}
+					//Checking for Locks
+					else if (currRoom->trigList[i]->object == "lock") {
+						for (int y = 0; y < currRoom->containerList.size(); y++) {
+							if (currRoom->containerList[y]->name == "lock" && currRoom->containerList[y]->status == "unlocked") {
+								movement(fullParse, input);
+								break;
+							}
+							else if (y == (currRoom->containerList.size() - 1)) {
+								cout << currRoom->trigList[i]->print << endl;
+								return false;
+							}
+						}
+					}
+				}
+			}
+		}
+		//Checking Next Room
+		for (int c = 0; c < currRoom->creatureList.size(); c++){
+			for (int trigCount = 0; trigCount < currRoom->creatureList[c]->trigList.size(); trigCount++) {
+				if (currRoom->creatureList[c]->trigList[trigCount]->object != "") {
+					for (int iCnt = 0; iCnt < inventory.size(); iCnt++) {
+						if (inventory[iCnt]->name == currRoom->creatureList[c]->trigList[trigCount]->object && inventory[iCnt]->status == currRoom->creatureList[c]->trigList[trigCount]->trigStat) {
+							cout << currRoom->creatureList[c]->trigList[trigCount]->print << endl;
+							break;
+						}
+					}
+				}
+				
+			}
+		}
+	}
+	//Turn on Updates
+	else if (input.substr(0, 7) == "turn on") {
+		if (turnonItem(temp[2]) == true) {
+			for (int turnCnt = 0; turnCnt < currRoom->creatureList.size(); turnCnt++) {
+				for (int tooMany = 0; tooMany < currRoom->creatureList[turnCnt]->trigList.size(); tooMany++){
+					if (currRoom->creatureList[turnCnt]->trigList[tooMany]->object == temp[2]) {
+						for (int nCnt = 0; nCnt < inventory.size(); nCnt++) {
+							if (inventory[nCnt]->name == temp[2] && inventory[nCnt]->status == currRoom->creatureList[turnCnt]->trigList[tooMany]->trigStat) {
+								cout << currRoom->creatureList[turnCnt]->trigList[tooMany]->print << endl;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//Putting Object in Container
+	else if (input.substr(0, 3) == "put") {
+		if (putItem(fullParse, input) == true) {
+			for (int contCnt = 0; contCnt < currRoom->containerList.size(); contCnt++) {
+				if (currRoom->containerList[contCnt]->name == temp[3]) {
+					for (int trigs = 0; trigs < currRoom->containerList[contCnt]->trigList.size(); trigs++) {
+						if (currRoom->containerList[contCnt]->trigList[trigs]->has == "yes" && currRoom->containerList[contCnt]->trigList[trigs]->object == temp[1]) {
+							vector<string> temp2;
+							istringstream iss(currRoom->containerList[contCnt]->trigList[trigs]->action);
+							string itemHodler;
+							copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp2));
+							currRoom->containerList[contCnt]->status = temp2[3];
+							cout << currRoom->containerList[contCnt]->print << endl;
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
 }
