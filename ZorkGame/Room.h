@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include"Trig.h"
 #include<string>
-#include<rapidxml.hpp>
+#include"rapidxml.hpp"
 #include<vector>
 #include<iostream>
 #include"Creature.h"
@@ -23,7 +23,7 @@ public:
 	vector<Creature*> creatureList;
 	vector<Container*> containerList;
 	vector<Item*> itemList;
-	vector<pair<string, string>> borderList;
+	vector<pair<string, string> > borderList;
 	vector<Trigger*> trigList;
 	bool hasTrig = false;
 private:
