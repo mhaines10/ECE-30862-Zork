@@ -20,6 +20,7 @@ public:
 	vector<pair<string,string> > condition;
 	vector<string> item;
 	vector<string> actions;
+	vector<Trigger *> trigList;
 	string printAct;
 private:
 	void generateCreature(xml_node<> *);

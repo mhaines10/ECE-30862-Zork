@@ -16,6 +16,7 @@ public:
 	string writing = "";
 	string print = "";
 	string action = "";
+	vector<Trigger *> trigList;
 	Item(xml_node<> *);
 	virtual ~Item();
 
