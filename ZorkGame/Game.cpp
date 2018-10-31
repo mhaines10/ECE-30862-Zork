@@ -199,7 +199,8 @@ void Game::getRoomItem(Parser * fullParse, string getItem) {
 		if (currRoom->itemList[i]->name == getItem) {
 			inventory.push_back(currRoom->itemList[i]);
 			cout << "Item " << getItem << " added to inventory." << endl;
-			currRoom->itemList.erase(remove_if(currRoom->itemList.begin(), currRoom->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->itemList.end());
+			currRoom->itemList.erase(currRoom->itemList.begin() + i - 1);
+			//currRoom->itemList.erase(remove_if(currRoom->itemList.begin(), currRoom->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->itemList.end());
 			stopFlag = 1;
 		}
 	}
@@ -209,7 +210,8 @@ void Game::getRoomItem(Parser * fullParse, string getItem) {
 				for (int x = 0; x < currRoom->containerList[y]->itemList.size(); x++) {
 					if (currRoom->containerList[y]->itemList[x]->name == getItem) {
 						inventory.push_back(currRoom->containerList[y]->itemList[x]);
-						currRoom->containerList[y]->itemList.erase(remove_if(currRoom->containerList[y]->itemList.begin(), currRoom->containerList[y]->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->containerList[y]->itemList.end());
+						currRoom->containerList[y]->itemList.erase(currRoom->containerList[y]->itemList.begin() + x - 1);
+						//currRoom->containerList[y]->itemList.erase(remove_if(currRoom->containerList[y]->itemList.begin(), currRoom->containerList[y]->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->containerList[y]->itemList.end());
 						errorFlag1 = 1;
 						cout << "Item " << getItem << " added to inventory." << endl;
 					}
