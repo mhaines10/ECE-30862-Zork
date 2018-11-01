@@ -7,7 +7,7 @@ Trigger::Trigger() {}
 
 Trigger::~Trigger() {}
 
-void Trigger::generateTrigger(xml_node<> * currNode1) {
+Trigger::Trigger(xml_node<> * currNode1) {
 	xml_node<> * currNode;
 	if (currNode1->first_node("type")) {
 		type = currNode1->first_node("type")->value();

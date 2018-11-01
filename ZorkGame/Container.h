@@ -2,7 +2,7 @@
 #define CONTAINER_H_
 #include <stdio.h>
 #include<string>
-#include<rapidxml.hpp>
+#include"rapidxml.hpp"
 #include<vector>
 #include<iostream>
 #include"Trig.h"
@@ -17,6 +17,7 @@ public:
 	string description = "";
 	vector<string> acceptList;
 	vector<Item*> itemList;
+	vector<Trigger *> trigList;
 private:
 	void generateContainer(xml_node<> *, xml_node<> *);
 };
