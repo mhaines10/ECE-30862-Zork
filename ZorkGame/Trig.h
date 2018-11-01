@@ -10,6 +10,7 @@ using namespace rapidxml;
 class Trigger {
 public:
 	Trigger( );
+	Trigger(xml_node<> *);
 	virtual ~Trigger();
 	string type = "";
 	string command = "";
@@ -20,6 +21,5 @@ public:
 	string print = "";
 	string action = "";
 	string executed = "no";
-	void generateTrigger(xml_node<> *);
 };
 #endif /*TRIG_H_*/

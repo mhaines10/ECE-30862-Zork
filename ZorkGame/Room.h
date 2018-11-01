@@ -23,7 +23,9 @@ public:
 	vector<Creature*> creatureList;
 	vector<Container*> containerList;
 	vector<Item*> itemList;
-	vector<pair<string, string>> borderList;
+	vector<pair<string, string> > borderList;
+	vector<Trigger*> trigList;
+	bool hasTrig = false;
 private:
 	void generateRoom(xml_node<> *, xml_node<> *);
 };

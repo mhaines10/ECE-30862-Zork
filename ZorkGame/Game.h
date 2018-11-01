@@ -24,7 +24,11 @@ public:
 	void openChest(string);
 	void attackCreat(Parser *, string, string);
 	void actionParse(Creature *, Parser *);
+	bool newTrigHand(Parser*, string);
+	bool dropItem(string);
+	bool Add(Parser *, string);
+	string retContainer(Parser*, string);
+	string retObject(Parser*, string);
 	
-
 };
 #endif /*GAME_H_*/
