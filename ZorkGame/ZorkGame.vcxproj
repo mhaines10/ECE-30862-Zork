@@ -101,7 +101,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -172,6 +172,11 @@
     <ClCompile Include="ZorkGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="..\..\containersample.xml" />
+    <Xml Include="..\..\creaturesample.xml" />
+    <Xml Include="..\..\itemsample.xml" />
+    <Xml Include="..\..\roomsample.xml" />
+    <Xml Include="..\..\triggersample.xml" />
     <Xml Include="test1.xml">
       <SubType>Designer</SubType>
     </Xml>
