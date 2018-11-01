@@ -164,7 +164,6 @@
   <ItemGroup>
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Creature.cpp" />
-    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="Room.cpp" />
