@@ -376,35 +376,43 @@ bool Game::Add(Parser * fullparse, string input) {
 	}
 
 	if (objType == "room") {
-		auto foundRoom = find_if(fullparse->Rooms.begin(), fullparse->Rooms.end(), [&cont](const Room& obj) {return obj.name == cont; });
+		auto foundRoom = find_if(fullparse->Rooms.begin(), fullparse->Rooms.end(), [&cont](Room const& obj) {return obj.name == cont; });
 		if (itemType == "item") {
-			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](const Item& obj) {return obj.name == itemStore; });
+			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](Item const& obj) {return obj.name == itemStore; });
 			(*foundRoom)->itemList.push_back(*foundItem);
 			return true;
 		}
 		else if (itemType == "creature") {
-			auto foundCreat = find_if(fullparse->Creatures.begin(), fullparse->Creatures.end(), [&itemStore](const Creature& obj) {return obj.name == itemStore; });
+			auto foundCreat = find_if(fullparse->Creatures.begin(), fullparse->Creatures.end(), [&itemStore](Creature const& obj) {return obj.name == itemStore; });
 			(*foundRoom)->creatureList.push_back(*foundCreat);
 			return true;
 		}
 	}
 	if (objType == "container") {
-		auto foundContainer = find_if(fullparse->Containers.begin(), fullparse->Containers.end(), [&cont](const Container& obj) {return obj.name == cont; });
+		auto foundContainer = find_if(fullparse->Containers.begin(), fullparse->Containers.end(), [&cont](Container const& obj) {return obj.name == cont; });
 		if (itemType == "item") {
-			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](const Item& obj) {return obj.name == itemStore; });
+			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](Item const& obj) {return obj.name == itemStore; });
 			(*foundContainer)->itemList.push_back(*foundItem);
 			return true;
 		}
 	}
 	return false;
 }
+bool Game::Delete(Parser * fullParse, string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	string objType = retObject(fullParse, input);
+
+}
 
 string Game::retContainer(Parser * fullParse, string input) {
-	auto hold = find_if(fullParse->Rooms.begin(), fullParse->Rooms.end(), [&input](const Room& obj) {return obj.name == input; });
+	auto hold = find_if(fullParse->Rooms.begin(), fullParse->Rooms.end(), [&input](Room const& obj) {return obj.name == input; });
 	if (hold != fullParse->Rooms.end()) {
 		return "room";
 	}
-	auto hold1 = find_if(fullParse->Containers.begin(), fullParse->Containers.end(), [&input](const Container& obj) {return obj.name == input; });
+	auto hold1 = find_if(fullParse->Containers.begin(), fullParse->Containers.end(), [&input](Container const& obj) {return obj.name == input; });
 	if (hold1 != fullParse->Containers.end()) {
 		return "container";
 	}
@@ -412,13 +420,23 @@ string Game::retContainer(Parser * fullParse, string input) {
 }
 
 string Game::retObject(Parser * fullParse, string input) {
-	auto hold = find_if(fullParse->Creatures.begin(), fullParse->Creatures.end(), [&input](const Creature& obj) {return obj.name == input; });
+	auto hold = find_if(fullParse->Creatures.begin(), fullParse->Creatures.end(), [&input](Creature const& obj) {return obj.name == input; });
 	if (hold != fullParse->Creatures.end()) {
 		return "creature";
 	}
-	auto hold1 = find_if(fullParse->Items.begin(), fullParse->Items.end(), [&input](const Item& obj) {return obj.name == input; });
+	auto hold1 = find_if(fullParse->Items.begin(), fullParse->Items.end(), [&input](Item const& obj) {return obj.name == input; });
 	if (hold1 != fullParse->Items.end()) {
 		return "item";
 	}
 	return "none";
+}
+
+bool Game::executeAct(Parser* fullParse, string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	if (temp[0] == "add" || temp[0] == "Add") {
+		return Add(fullParse, input);
+	}
 }
