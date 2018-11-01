@@ -19,8 +19,9 @@ public:
 	void getRoomItem(Parser *, string);
 	void readItem(Parser *, string);
 	bool turnonItem(string);
+	bool dropItem(string);
 	bool putItem(Parser *, string);
-	void openChest();
+	void openChest(string);
 	void attackCreat(Parser *, string, string);
 	void actionParse(Creature *, Parser *);
 	

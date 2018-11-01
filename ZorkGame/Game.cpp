@@ -42,7 +42,10 @@ void Game::checkInput(Parser * fullParse) {
 		readItem(fullParse, input.substr(5));
 	}
 	else if (input.substr(0, 4) == "open") {
-		openChest();
+		openChest(input);
+	}
+	else if (input.substr(0, 4) == "drop") {
+		dropItem(input);
 	}
 	else if (input.substr(0, 6) == "attack") {
 		vector<string> temp;
@@ -141,6 +144,7 @@ bool Game::executeTrig(Parser * fullParse, string input) {
 				}
 				return false;
 			}
+			
 		}
 		//Check if item is already activated before changing rooms
 		else {
@@ -157,6 +161,9 @@ bool Game::executeTrig(Parser * fullParse, string input) {
 			}
 		}
 		return true;
+		if (currRoom->object == "key" && currRoom->has == "yes" && currRoom->owner == "lock") {
+			cout << currRoom->print << endl;
+		}
 	}
 	//Finding item linked triggers
 	if (input.substr(0,7) == "turn on"){
@@ -182,17 +189,20 @@ bool Game::executeTrig(Parser * fullParse, string input) {
 	}
 	return true;
 }
+
+
 void Game::displayInventory() {
 	if (inventory.size() == 0) {
 		cout << "Inventory: empty" << endl;
  	}
 	else {
+		cout << "Inventory: ";
 		for (int i = 0; i < inventory.size(); i++) {
 			if (i == inventory.size() - 1) {
 				cout << inventory[i]->name << endl;
 			}
 			else {
-				cout << inventory[i]->name << ",";
+				cout << inventory[i]->name << ", ";
 			}
 		}
 	}
@@ -253,6 +263,27 @@ bool Game::turnonItem(string itemName) {
 	cout << "Error" << endl;
 	return false;
 }
+
+bool Game::dropItem(string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	for (int i = 0; i < inventory.size(); i++) {
+		if (inventory[i]->name == temp[1]) {
+			currRoom->itemList.push_back(inventory[i]);
+			cout << inventory[i]->name;
+			cout << " dropped." << endl;
+			inventory.erase(inventory.begin() + i);
+			return true;
+		}
+		else {
+			cout << "Error" << endl;
+			return false;
+		}
+	}
+}
+
 bool Game::putItem(Parser * fullParse, string input) {
 	vector<string> temp;
 	istringstream iss(input);
@@ -288,18 +319,29 @@ bool Game::putItem(Parser * fullParse, string input) {
 	return false;
 }
 
-void Game::openChest() {
+void Game::openChest(string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
 	for (int i = 0; i < currRoom->containerList.size(); i++) {
-		if (currRoom->containerList[i]->name == "chest") {
-			for (int x = 0; x < currRoom->containerList[i]->itemList.size(); x++) {
-				cout << currRoom->containerList[i]->itemList[x]->name << endl;
+		if (currRoom->containerList[i]->name == temp[1]) {
+			if (currRoom->containerList[i]->itemList.size() == 0) {
+				cout << "chest is empty." << endl;
 			}
-			return;
+			else {
+				for (int x = 0; x < currRoom->containerList[i]->itemList.size(); x++) {
+					cout << "chest contains ";
+					cout << currRoom->containerList[i]->itemList[x]->name << endl;
+				}
+			}
 		}
+		return;
 	}
 	cout << "Error" << endl;
 	return;
 }
+
 void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 	for (int i = 0; i < currRoom->creatureList.size(); i++) {
 		if (currRoom->creatureList[i]->name == Creat) {
