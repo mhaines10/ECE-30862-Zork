@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include<string>
 #include<iostream>
-#include<rapidxml.hpp>
+#include"rapidxml.hpp"
 #include<vector>
 #include"Trig.h"
 using namespace std;
@@ -17,7 +17,7 @@ public:
 	string status;
 	string description;
 	vector<string> vulnerability;
-	vector<pair<string,string>> condition;
+	vector<pair<string,string> > condition;
 	vector<string> item;
 	vector<string> actions;
 	vector<Trigger *> trigList;
