@@ -27,6 +27,8 @@ public:
 	bool newTrigHand(Parser*, string);
 	bool dropItem(string);
 	bool Add(Parser *, string);
+	bool Delete(Parser*, string);
+	bool executeAct(Parser*, string);
 	string retContainer(Parser*, string);
 	string retObject(Parser*, string);
 	
