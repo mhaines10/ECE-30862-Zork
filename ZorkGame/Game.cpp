@@ -40,7 +40,11 @@ void Game::checkInput(Parser * fullParse) {
 		readItem(fullParse, input.substr(5));
 	}
 	else if (input.substr(0, 4) == "open") {
-		openChest();
+		openChest(input);
+	}
+
+	else if (input.substr(0, 4) == "drop") {
+		dropItem(input);
 	}
 	else if (input.substr(0, 4) == "drop") {
 		dropItem(input);
@@ -99,17 +103,111 @@ void Game::movement(Parser * fullParse, string direction) {
 	}
 }
 
+//<<<<<<< HEAD
+void Game::defaultError(Parser * fullParse) {
+	std::cout << "Error" << std::endl;
+}
+
+bool Game::executeTrig(Parser * fullParse, string input) {
+	if (input == "n" || input == "s" || input == "e" || input == "w"){
+		//Checking Current Room Triggers and if they are permanent
+		if (currRoom->command == input && (currRoom->type == "permanent" || currRoom->executed != "yes")) {
+			//Checking if trigger is inventory based
+			if (currRoom->has == "no" && currRoom->owner == "inventory") {
+				if (inventory.size() == 0) {
+					if (currRoom->print != "") {
+						std::cout << currRoom->print << std::endl;
+						return false;
+					}
+				}
+				else if (inventory.size() > 0) {
+					for (int x = 0; x < inventory.size(); x++){
+						if (inventory[x]->name == currRoom->object) {
+							return true;
+						}
+						else if (x == inventory.size() - 1 && inventory[x]->name != currRoom->object) {
+							if (currRoom->print != "") {
+								std::cout << currRoom->print << std::endl;
+								return false;
+							}
+						}
+					
+					}	
+				}
+			}
+			else if (currRoom->object == "lock") {
+				for (int xi = 0; xi < currRoom->containerList.size(); xi++) {
+					if (currRoom->containerList[xi]->name == "lock" && currRoom->containerList[xi]->status == "locked") {
+						cout << currRoom->print << endl;
+						return false;
+					}
+					else {
+						return true;
+					}
+				}
+				return false;
+			}
+			
+		}
+		//Check if item is already activated before changing rooms
+		else {
+			for (int y = 0; y < inventory.size(); y++) {
+				for (int z = 0; z < currRoom->creatureList.size(); z++) {
+					if (inventory[y]->name == currRoom->creatureList[z]->object) {
+						if (inventory[y]->status == currRoom->creatureList[z]->trigStat) {
+							if (currRoom->creatureList[z]->print != "") {
+								cout << currRoom->creatureList[z]->print << endl;
+							}
+						}
+					}
+				}
+			}
+		}
+		return true;
+		if (currRoom->object == "key" && currRoom->has == "yes" && currRoom->owner == "lock") {
+			cout << currRoom->print << endl;
+		}
+	}
+	//Finding item linked triggers
+	if (input.substr(0,7) == "turn on"){
+		if (turnonItem(input.substr(8))) {
+			for (int l = 0; l < inventory.size(); l++) {
+				if (inventory[l]->name == input.substr(8)) {
+					for (int xi = 0; xi < currRoom->creatureList.size(); xi++) {
+						if (currRoom->creatureList[xi]->object == inventory[l]->name && currRoom->creatureList[xi]->trigStat == inventory[l]->status) {
+							cout << currRoom->creatureList[xi]->print << endl;
+							return true;
+						}
+					}
+				}
+			}
+		}
+		else {
+			cout << "Error" << endl;
+			return false;
+		}
+	}
+	if (input.substr(0, 3) == "put") {
+		putItem(fullParse, input);
+	}
+	return true;
+}
+
+
+//=======
+//>>>>>>> 8cf8b00c34800aa5b66ffb64f4d64cc501b0bc22
 void Game::displayInventory() {
 	if (inventory.size() == 0) {
 		cout << "Inventory: empty" << endl;
  	}
 	else {
+		cout << "Inventory: ";
 		for (int i = 0; i < inventory.size(); i++) {
 			if (i == inventory.size() - 1) {
 				cout << inventory[i]->name << endl;
 			}
 			else {
-				cout << inventory[i]->name << ",";
+				cout << inventory[i]->name << ", ";
 			}
 		}
 	}
@@ -180,6 +278,27 @@ bool Game::turnonItem(string itemName) {
 	cout << "Error" << endl;
 	return false;
 }
+
+bool Game::dropItem(string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	for (int i = 0; i < inventory.size(); i++) {
+		if (inventory[i]->name == temp[1]) {
+			currRoom->itemList.push_back(inventory[i]);
+			cout << inventory[i]->name;
+			cout << " dropped." << endl;
+			inventory.erase(inventory.begin() + i);
+			return true;
+		}
+		else {
+			cout << "Error" << endl;
+			return false;
+		}
+	}
+}
+
 bool Game::putItem(Parser * fullParse, string input) {
 	vector<string> temp;
 	istringstream iss(input);
@@ -204,11 +323,18 @@ bool Game::putItem(Parser * fullParse, string input) {
 	return false;
 }
 
+//<<<<<<< HEAD
+void Game::openChest(string input) {
+	//=======
+}
 bool Game::dropItem(string input) {
+//>>>>>>> 8cf8b00c34800aa5b66ffb64f4d64cc501b0bc22
 	vector<string> temp;
 	istringstream iss(input);
 	string itemHodler;
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+//<<<<<<< HEAD
+//=======
 	for (int i = 0; i < inventory.size(); i++) {
 		if (inventory[i]->name == temp[1]) {
 			currRoom->itemList.push_back(inventory[i]);
@@ -220,17 +346,25 @@ bool Game::dropItem(string input) {
 }
 
 void Game::openChest() {
+//>>>>>>> 8cf8b00c34800aa5b66ffb64f4d64cc501b0bc22
 	for (int i = 0; i < currRoom->containerList.size(); i++) {
-		if (currRoom->containerList[i]->name == "chest") {
-			for (int x = 0; x < currRoom->containerList[i]->itemList.size(); x++) {
-				cout << currRoom->containerList[i]->itemList[x]->name << endl;
+		if (currRoom->containerList[i]->name == temp[1]) {
+			if (currRoom->containerList[i]->itemList.size() == 0) {
+				cout << "chest is empty." << endl;
 			}
-			return;
+			else {
+				for (int x = 0; x < currRoom->containerList[i]->itemList.size(); x++) {
+					cout << "chest contains ";
+					cout << currRoom->containerList[i]->itemList[x]->name << endl;
+				}
+			}
 		}
+		return;
 	}
 	cout << "Error" << endl;
 	return;
 }
+
 void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 	for (int i = 0; i < currRoom->creatureList.size(); i++) {
 		if (currRoom->creatureList[i]->name == Creat) {
@@ -339,6 +473,7 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 			}
 		}
 	}
+
 	//Putting Object in Container
 	else if (input.substr(0, 3) == "put") {
 		if (putItem(fullParse, input) == true) {
@@ -429,6 +564,7 @@ string Game::retObject(Parser * fullParse, string input) {
 		return "item";
 	}
 	return "none";
+
 }
 
 bool Game::executeAct(Parser* fullParse, string input) {
