@@ -27,7 +27,8 @@ public:
 	bool dropItem(string);
 	bool Add(Parser *, string);
 	bool Delete(Parser*, string);
-	bool executeAct(Parser*, string);
+	bool Update(Parser*, string, Item*, Creature*,Container*);
+	bool executeAct(Parser*, string, Room*,Creature*,Item*,Container*);
 	string retContainer(Parser*, string);
 	string retObject(Parser*, string);
 	
