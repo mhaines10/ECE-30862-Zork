@@ -192,17 +192,6 @@ bool Game::putItem(Parser * fullParse, string input) {
 					for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
 						if (currRoom->containerList[x]->acceptList[y] == temp[1]) {
 							currRoom->containerList[x]->itemList.push_back(inventory[i]);
-							if (currRoom->containerList[x]->has == "yes" && currRoom->containerList[x]->object == inventory[i]->name){
-								cout << currRoom->containerList[x]->print << endl;
-								vector<string> temp1;
-								istringstream iss(currRoom->containerList[x]->action);
-								string itemHodler;
-								copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp1));
-								if (temp[0] == "Update" && temp[3] == "unlocked") {
-									currRoom->containerList[x]->status = "unlocked";
-									currRoom->trigStat = "unlocked";
-								}
-							}
 							inventory.erase(inventory.begin() + i);
 							return true;
 						}
