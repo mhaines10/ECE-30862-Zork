@@ -42,6 +42,9 @@ void Game::checkInput(Parser * fullParse) {
 	else if (input.substr(0, 4) == "open") {
 		openChest();
 	}
+	else if (input.substr(0, 4) == "drop") {
+		dropItem(input);
+	}
 	else if (input.substr(0, 6) == "attack") {
 		vector<string> temp;
 		istringstream iss(input);
@@ -94,10 +97,6 @@ void Game::movement(Parser * fullParse, string direction) {
 				break;
 		}
 	}
-}
-
-void Game::defaultError(Parser * fullParse) {
-	std::cout << "Error" << std::endl;
 }
 
 void Game::displayInventory() {
@@ -205,6 +204,21 @@ bool Game::putItem(Parser * fullParse, string input) {
 	return false;
 }
 
+bool Game::dropItem(string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	for (int i = 0; i < inventory.size(); i++) {
+		if (inventory[i]->name == temp[1]) {
+			currRoom->itemList.push_back(inventory[i]);
+			inventory.erase(inventory.begin() + i - 1);
+			return true;
+		}
+	}
+	return false;
+}
+
 void Game::openChest() {
 	for (int i = 0; i < currRoom->containerList.size(); i++) {
 		if (currRoom->containerList[i]->name == "chest") {
@@ -225,16 +239,16 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 					for (int j = 0; j < currRoom->creatureList[i]->vulnerability.size(); j++) {
 						if (currRoom->creatureList[i]->vulnerability[j] == attackItem) {
 							for (int xi = 0; currRoom->creatureList[i]->condition.size(); xi++){
-								if (currRoom->creatureList[i]->condition[xi].first == attackItem) {
-									if (inventory[k]->status == currRoom->creatureList[i]->condition[xi].second) {
-										cout << currRoom->creatureList[i]->printAct << endl;
-										actionParse(currRoom->creatureList[i],fullParse);
-										return;
+								if (currRoom->creatureList[i]->condition[xi].first == attackItem && inventory[k]->status == currRoom->creatureList[i]->condition[xi].second) {
+									cout << currRoom->creatureList[i]->printAct << endl;
+									for (int actList = 0; actList < currRoom->creatureList[i]->actions.size(); actList++) {
+										cout << "blah" << endl;
 									}
-									else {
-										cout << "Error" << endl;
-										break;
-									}
+									return;
+								}
+								else {
+									cout << "Error" << endl;
+									break;
 								}
 							}
 						}
@@ -247,37 +261,7 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 	cout << "Error" << endl;
 	return;
 }
-void Game::actionParse(Creature * inCreat, Parser * fullParse) {
-	for (int i = 0; i < inCreat->actions.size(); i++) {
-		vector<string> temp;
-		istringstream iss(inCreat->actions[i]);
-		string itemHodler;
-		copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
-		if (temp[0] == "Delete") {
-			delete(inCreat);
-		}
-		if (temp[0] == "Add") {
-			for (int z = 0; z < fullParse->Rooms.size(); z++) {
-				if (temp[3] == fullParse->Rooms[z]->name) {
-					for (int xy = 0; xy < fullParse->Items.size(); xy++) {
-						if (fullParse->Items[xy]->name == temp[1]) {
-							fullParse->Rooms[z]->itemList.push_back(fullParse->Items[xy]);
-						}
-					}
-				}
-			}
-			for (int z1 = 0; z1 < fullParse->Containers.size(); z1++) {
-				if (temp[3] == fullParse->Containers[z1]->name) {
-					for (int xy1 = 0; xy1 < fullParse->Items.size(); xy1++) {
-						if (fullParse->Items[xy1]->name == temp[1]) {
-							fullParse->Containers[z1]->itemList.push_back(fullParse->Items[xy1]);
-						}
-					}
-				}
-			}
-		}
-	}
-}
+
 bool Game::newTrigHand(Parser * fullParse, string input) {
 	vector<string> temp;
 	istringstream iss(input);
@@ -376,4 +360,65 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 		}
 	}
 	return true;
+}
+
+bool Game::Add(Parser * fullparse, string input) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	string objType = retContainer(fullparse, temp[3]);
+	string itemType = retObject(fullparse, temp[1]);
+	string cont = temp[3];
+	string itemStore = temp[1];
+	if (objType == "none" || itemType == "none") {
+		return false;
+	}
+
+	if (objType == "room") {
+		auto foundRoom = find_if(fullparse->Rooms.begin(), fullparse->Rooms.end(), [&cont](const Room& obj) {return obj.name == cont; });
+		if (itemType == "item") {
+			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](const Item& obj) {return obj.name == itemStore; });
+			(*foundRoom)->itemList.push_back(*foundItem);
+			return true;
+		}
+		else if (itemType == "creature") {
+			auto foundCreat = find_if(fullparse->Creatures.begin(), fullparse->Creatures.end(), [&itemStore](const Creature& obj) {return obj.name == itemStore; });
+			(*foundRoom)->creatureList.push_back(*foundCreat);
+			return true;
+		}
+	}
+	if (objType == "container") {
+		auto foundContainer = find_if(fullparse->Containers.begin(), fullparse->Containers.end(), [&cont](const Container& obj) {return obj.name == cont; });
+		if (itemType == "item") {
+			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](const Item& obj) {return obj.name == itemStore; });
+			(*foundContainer)->itemList.push_back(*foundItem);
+			return true;
+		}
+	}
+	return false;
+}
+
+string Game::retContainer(Parser * fullParse, string input) {
+	auto hold = find_if(fullParse->Rooms.begin(), fullParse->Rooms.end(), [&input](const Room& obj) {return obj.name == input; });
+	if (hold != fullParse->Rooms.end()) {
+		return "room";
+	}
+	auto hold1 = find_if(fullParse->Containers.begin(), fullParse->Containers.end(), [&input](const Container& obj) {return obj.name == input; });
+	if (hold1 != fullParse->Containers.end()) {
+		return "container";
+	}
+	return "none";
+}
+
+string Game::retObject(Parser * fullParse, string input) {
+	auto hold = find_if(fullParse->Creatures.begin(), fullParse->Creatures.end(), [&input](const Creature& obj) {return obj.name == input; });
+	if (hold != fullParse->Creatures.end()) {
+		return "creature";
+	}
+	auto hold1 = find_if(fullParse->Items.begin(), fullParse->Items.end(), [&input](const Item& obj) {return obj.name == input; });
+	if (hold1 != fullParse->Items.end()) {
+		return "item";
+	}
+	return "none";
 }
