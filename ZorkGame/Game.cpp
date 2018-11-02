@@ -379,6 +379,7 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 					}
 				}
 			}
+			return true;
 		}
 		else {
 			return false;
