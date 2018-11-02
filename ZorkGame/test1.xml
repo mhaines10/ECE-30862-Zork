@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <map>
   <room>
-    <container>closet</container>
     <name>Entrance</name>
     <description>Room - Entrance</description>
     <border>
       <direction>north</direction>
       <name>Main</name>
     </border>
+    <item>axe</item>
   </room>
   <room>
     <name>Main</name>
+    <creature>dragon</creature>
+    <item>sword</item>
     <description>Room - Main</description>
     <border>
       <direction>south</direction>
@@ -24,7 +26,6 @@
   <room>
     <type>exit</type>
     <name>Staircase</name>
-    <container>container</container>
     <description>Room - Staircase (exit)</description>
     <border>
       <name>Main</name>
@@ -39,19 +40,30 @@
     <name>note</name>
     <writing>You found the exit :-)</writing>
   </item>
-  <container>
-    <name>closet</name>
-    <item>sword</item>
-  </container>
+  <item>
+    <name>axe</name>
+  </item>
   <container>
     <name>bottle</name>
     <item>note</item>
   </container>
-  <container>
-    <accept>sword</accept>
-    <name>container</name>
-  </container>
-  <container>
-    <name>unused</name>
-  </container>
+  <creature>
+    <name>giant</name>
+    <vulnerability>sword</vulnerability>
+    <vulnerability>axe</vulnerability>
+    <attack>
+      <action>Game Over</action>
+    </attack>
+  </creature>
+  <creature>
+    <name>dragon</name>
+    <vulnerability>sword</vulnerability>
+    <vulnerability>axe</vulnerability>
+    <attack>
+      <action>Add giant to Main</action>
+      <action>s</action>
+      <print>Giant scares you away</print>
+      <action>Delete dragon</action>
+    </attack>
+  </creature>
 </map>

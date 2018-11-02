@@ -30,6 +30,10 @@ void Parser::getFirstLevel(xml_node<> * currNode, vector<Room*> &roomHolder, vec
 			Container * tempCont = new Container(holdNode,currNode);
 			contHolder.push_back(tempCont);
 		}
+		if (string(holdNode->name()) == "creature") {
+			Creature * tempCreat = new Creature(holdNode);
+			creatHolder.push_back(tempCreat);
+		}
 
 	}
 }
