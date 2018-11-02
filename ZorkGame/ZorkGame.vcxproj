@@ -164,6 +164,7 @@
   <ItemGroup>
     <ClCompile Include="Container.cpp" />
     <ClCompile Include="Creature.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Item.cpp" />
     <ClCompile Include="parser.cpp" />
     <ClCompile Include="Room.cpp" />
@@ -171,11 +172,6 @@
     <ClCompile Include="ZorkGame.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\containersample.xml" />
-    <Xml Include="..\..\creaturesample.xml" />
-    <Xml Include="..\..\itemsample.xml" />
-    <Xml Include="..\..\roomsample.xml" />
-    <Xml Include="..\..\triggersample.xml" />
     <Xml Include="test1.xml">
       <SubType>Designer</SubType>
     </Xml>
