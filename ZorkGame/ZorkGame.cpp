@@ -5,8 +5,17 @@
 
 int main()
 {
-	Parser* initial = new Parser("test1.xml");
-	Game * currGame = new Game(initial);
+	while (true){
+		Parser* initial = new Parser("test1.xml");
+		Game * currGame = new Game(initial);
+		cout << "Victory!" << endl;
+		cout << "Play Again (y/n): ";
+		string input;
+		getline(cin, input);
+		if (input != "y") {
+			break;
+		}
+	}
 	return 0;
 }
 

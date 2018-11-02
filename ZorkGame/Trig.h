@@ -19,7 +19,7 @@ public:
 	string object = "";
 	string owner = "";
 	string print = "";
-	string action = "";
+	vector<string> action;
 	string executed = "no";
 };
 #endif /*TRIG_H_*/

@@ -56,7 +56,10 @@ Trigger::Trigger(xml_node<> * currNode1) {
 		print = currNode->next_sibling("print")->value();
 	}
 	if (currNode->next_sibling("action")) {
-		action = currNode->next_sibling("action")->value();
+		for (xml_node<> * holder = currNode->next_sibling("action"); holder; holder = holder->next_sibling("action")) {
+			action.push_back(holder->value());
+		}
+		
 	}
 	
 }

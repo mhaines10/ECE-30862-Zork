@@ -15,6 +15,7 @@ public:
 	string name = "";
 	string status = "";
 	string description = "";
+	bool opened = false;
 	vector<string> acceptList;
 	vector<Item*> itemList;
 	vector<Trigger *> trigList;

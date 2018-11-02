@@ -21,9 +21,9 @@ public:
 	bool dropItem(string);
 	bool putItem(Parser *, string);
 	void openChest(string);
+	void openExit(string);
 	void attackCreat(Parser *, string, string);
 	bool newTrigHand(Parser*, string);
-	bool dropItem(string);
 	bool Add(Parser *, string, Room*, Item*, Creature*, Container*);
 	bool Delete(Parser*, string,Room*, Item*, Creature*, Container*);
 	bool Update(Parser*, string, Item*, Creature*,Container*);
