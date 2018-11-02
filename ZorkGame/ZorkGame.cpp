@@ -5,7 +5,7 @@
 
 int main()
 {
-	Parser* initial = new Parser("sampleCustom.xml");
+	Parser* initial = new Parser("test1.xml");
 	Game * currGame = new Game(initial);
 	return 0;
 }

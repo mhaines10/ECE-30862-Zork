@@ -33,6 +33,13 @@ void Creature::generateCreature(xml_node<> * currNode) {
 					actions.push_back(actHold->value());
 				}
 			}
+			if (holdNode->first_node("condition")) {
+				for (xml_node<> * holdNode1 = holdNode->first_node("condition"); holdNode1; holdNode1 = holdNode1->next_sibling("condition")) {
+					if (holdNode1->first_node("object")) {
+						condition.push_back(make_pair(holdNode1->first_node("object")->value(), holdNode1->first_node("status")->value()));
+					}
+				}
+			}
 		}
 	}
 	if (currNode->first_node("trigger")) {

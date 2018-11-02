@@ -29,6 +29,7 @@ void Game::startGame(Parser * fullParse) {
 void Game::checkInput(Parser * fullParse) {
 	string input;
 	bool errorCheck;
+	cout << "> " ;
 	getline(cin, input);
 	errorCheck = newTrigHand(fullParse, input);
 	if (input.substr(0,4) == "take") {
@@ -80,6 +81,11 @@ void Game::movement(Parser * fullParse, string direction) {
 	for (int i = 0; i < currRoom->borderList.size(); i++) {
 		if (string(currRoom->borderList[i].first) == compareHold) {
 			string nameHold = currRoom->borderList[i].second;
+			if (find(delRooms.begin(), delRooms.end(), nameHold) != delRooms.end()) {
+				cout << "how" << endl;
+				cout << "Error" << endl;
+				return;
+			}
 			for (int j = 0; j < fullParse->Rooms.size(); j++) {
 				if (fullParse->Rooms[j]->name == nameHold) {
 					currRoom = fullParse->Rooms[j];
@@ -124,8 +130,7 @@ void Game::getRoomItem(Parser * fullParse, string getItem) {
 		if (currRoom->itemList[i]->name == getItem) {
 			inventory.push_back(currRoom->itemList[i]);
 			cout << "Item " << getItem << " added to inventory." << endl;
-			currRoom->itemList.erase(currRoom->itemList.begin() + i - 1);
-			//currRoom->itemList.erase(remove_if(currRoom->itemList.begin(), currRoom->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->itemList.end());
+			currRoom->itemList.erase(remove_if(currRoom->itemList.begin(), currRoom->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->itemList.end());
 			stopFlag = 1;
 		}
 	}
@@ -135,8 +140,7 @@ void Game::getRoomItem(Parser * fullParse, string getItem) {
 				for (int x = 0; x < currRoom->containerList[y]->itemList.size(); x++) {
 					if (currRoom->containerList[y]->itemList[x]->name == getItem) {
 						inventory.push_back(currRoom->containerList[y]->itemList[x]);
-						currRoom->containerList[y]->itemList.erase(currRoom->containerList[y]->itemList.begin() + x - 1);
-						//currRoom->containerList[y]->itemList.erase(remove_if(currRoom->containerList[y]->itemList.begin(), currRoom->containerList[y]->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->containerList[y]->itemList.end());
+						currRoom->containerList[y]->itemList.erase(remove_if(currRoom->containerList[y]->itemList.begin(), currRoom->containerList[y]->itemList.end(), [&getItem](auto & elem) {return elem->name == getItem; }), currRoom->containerList[y]->itemList.end());
 						errorFlag1 = 1;
 						cout << "Item " << getItem << " added to inventory." << endl;
 					}
@@ -162,19 +166,9 @@ void Game::readItem(Parser * fullParse, string itemRead) {
 bool Game::turnonItem(string itemName) {
 	for (int i = 0; i < inventory.size(); i++){
 		if (inventory[i]->name == itemName) {
+			cout << inventory[i]->print << endl;
 			if (inventory[i]->action != ""){
-				vector<string> temp;
-				istringstream iss(inventory[i]->action);
-				string itemHodler;
-				copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
-				if (temp[0] == "drop" || temp[0] == "Drop") {
-					//dropStuff();
-				}
-				else {
-					inventory[i]->status = temp[3];
-					cout << inventory[i]->print << endl;
-					return true;
-				}
+				return executeAct(nullptr,inventory[i]->action,nullptr,nullptr,inventory[i],nullptr);
 			}
 		}
 	}
@@ -188,7 +182,6 @@ bool Game::putItem(Parser * fullParse, string input) {
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
 	for (int i = 0; i < inventory.size(); i++) {
 		if (inventory[i]->name == temp[1]) {
-
 			for (int x = 0; x < currRoom->containerList.size(); x++) {
 				if (currRoom->containerList[x]->name == temp[3]){
 					for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
@@ -243,8 +236,15 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 								if (currRoom->creatureList[i]->condition[xi].first == attackItem && inventory[k]->status == currRoom->creatureList[i]->condition[xi].second) {
 									cout << currRoom->creatureList[i]->printAct << endl;
 									for (int actList = 0; actList < currRoom->creatureList[i]->actions.size(); actList++) {
-										cout << "blah" << endl;
+										vector<string> temp;
+										istringstream iss(currRoom->creatureList[i]->actions[actList]);
+										string itemHodler;
+										copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+										if (temp[0] != "delete" && temp[0] != "Delete") {
+											executeAct(fullParse, currRoom->creatureList[i]->actions[actList], currRoom, currRoom->creatureList[i], nullptr, nullptr);
+										}	
 									}
+									Delete(fullParse,"Delete",currRoom,nullptr,currRoom->creatureList[i],nullptr);
 									return;
 								}
 								else {
@@ -276,7 +276,6 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 					if (currRoom->trigList[i]->owner == "inventory" && currRoom->trigList[i]->has == "no") {
 						if (inventory.size() != 0) {
 							for (int x = 0; x < inventory.size(); x++) {
-								cout << currRoom->trigList[i]->object << endl;
 								if (currRoom->trigList[i]->object == inventory[x]->name) {
 									movement(fullParse, input);
 									break;
@@ -313,8 +312,9 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 			for (int trigCount = 0; trigCount < currRoom->creatureList[c]->trigList.size(); trigCount++) {
 				if (currRoom->creatureList[c]->trigList[trigCount]->object != "") {
 					for (int iCnt = 0; iCnt < inventory.size(); iCnt++) {
-						if (inventory[iCnt]->name == currRoom->creatureList[c]->trigList[trigCount]->object && inventory[iCnt]->status == currRoom->creatureList[c]->trigList[trigCount]->trigStat) {
+						if (inventory[iCnt]->name == currRoom->creatureList[c]->trigList[trigCount]->object && inventory[iCnt]->status == currRoom->creatureList[c]->trigList[trigCount]->trigStat && (currRoom->creatureList[c]->trigList[trigCount]->type == "permanent" || currRoom->creatureList[c]->trigList[trigCount]->executed == "no")) {
 							cout << currRoom->creatureList[c]->trigList[trigCount]->print << endl;
+							currRoom->creatureList[c]->trigList[trigCount]->executed = "yes";
 							break;
 						}
 					}
@@ -330,8 +330,9 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 				for (int tooMany = 0; tooMany < currRoom->creatureList[turnCnt]->trigList.size(); tooMany++){
 					if (currRoom->creatureList[turnCnt]->trigList[tooMany]->object == temp[2]) {
 						for (int nCnt = 0; nCnt < inventory.size(); nCnt++) {
-							if (inventory[nCnt]->name == temp[2] && inventory[nCnt]->status == currRoom->creatureList[turnCnt]->trigList[tooMany]->trigStat) {
+							if (inventory[nCnt]->name == temp[2] && inventory[nCnt]->status == currRoom->creatureList[turnCnt]->trigList[tooMany]->trigStat && (currRoom->creatureList[turnCnt]->trigList[tooMany]->type == "permanent" || currRoom->creatureList[turnCnt]->trigList[tooMany]->executed == "no")) {
 								cout << currRoom->creatureList[turnCnt]->trigList[tooMany]->print << endl;
+								currRoom->creatureList[turnCnt]->trigList[tooMany]->executed = "yes";
 								return true;
 							}
 						}
@@ -347,12 +348,8 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 				if (currRoom->containerList[contCnt]->name == temp[3]) {
 					for (int trigs = 0; trigs < currRoom->containerList[contCnt]->trigList.size(); trigs++) {
 						if (currRoom->containerList[contCnt]->trigList[trigs]->has == "yes" && currRoom->containerList[contCnt]->trigList[trigs]->object == temp[1]) {
-							vector<string> temp2;
-							istringstream iss(currRoom->containerList[contCnt]->trigList[trigs]->action);
-							string itemHodler;
-							copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp2));
-							currRoom->containerList[contCnt]->status = temp2[3];
-							cout << currRoom->containerList[contCnt]->print << endl;
+							cout << currRoom->containerList[contCnt]->trigList[trigs]->print << endl;
+							executeAct(fullParse, currRoom->containerList[contCnt]->trigList[trigs]->action, nullptr, nullptr, nullptr, currRoom->containerList[contCnt]);
 							return true;
 						}
 					}
@@ -363,54 +360,53 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 	return true;
 }
 
-bool Game::Add(Parser * fullparse, string input) {
+bool Game::Add(Parser * fullparse, string input, Room * room, Item* items, Creature* creat, Container* cont) {
 	vector<string> temp;
 	istringstream iss(input);
 	string itemHodler;
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
-	string objType = retContainer(fullparse, temp[3]);
-	string itemType = retObject(fullparse, temp[1]);
-	string cont = temp[3];
-	string itemStore = temp[1];
-	if (objType == "none" || itemType == "none") {
-		return false;
+	if (room != nullptr && items != nullptr) {
+		room->itemList.push_back(items);
+		return true;
 	}
-
-	if (objType == "room") {
-		auto foundRoom = find_if(fullparse->Rooms.begin(), fullparse->Rooms.end(), [&cont](auto & elem) {return elem->name == cont; });
-		if (itemType == "item") {
-			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](auto & elem) {return elem->name == itemStore; });
-			(*foundRoom)->itemList.push_back(*foundItem);
-			return true;
-		}
-		else if (itemType == "creature") {
-			auto foundCreat = find_if(fullparse->Creatures.begin(), fullparse->Creatures.end(), [&itemStore](auto & elem) {return elem->name == itemStore; });
-			(*foundRoom)->creatureList.push_back(*foundCreat);
-			return true;
-		}
+	else if (room != nullptr && creat != nullptr) {
+		room->creatureList.push_back(creat);
+		return true;
 	}
-	if (objType == "container") {
-		auto foundContainer = find_if(fullparse->Containers.begin(), fullparse->Containers.end(), [&cont](auto & elem) {return elem->name == cont; });
-		if (itemType == "item") {
-			auto foundItem = find_if(fullparse->Items.begin(), fullparse->Items.end(), [&itemStore](auto & elem) {return elem->name == itemStore; });
-			(*foundContainer)->itemList.push_back(*foundItem);
-			return true;
-		}
-	}
-	return false;
-}
-bool Game::Delete(Parser * fullParse, string input) {
-	vector<string> temp;
-	istringstream iss(input);
-	string itemHodler;
-	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
-	string objType = temp[1];
-	for (int i = 0; i < fullParse->Rooms.size(); i++) {
-		auto foundCreat = find_if(fullParse->Rooms[i]->creatureList.begin(), fullParse->Rooms[i]->creatureList.end(), [&objType](auto & elem) {return elem->name == objType; });
-		fullParse->Rooms[i]->creatureList.erase(remove_if(fullParse->Rooms[i]->creatureList.begin(), fullParse->Rooms[i]->creatureList.end(), [&objType](auto & elem) {return elem->name == objType; }));
+	else if (cont != nullptr && items != nullptr) {
+		cont->itemList.push_back(items);
 		return true;
 	}
 	return false;
+}
+
+bool Game::Delete(Parser * fullParse, string input, Room * room, Item * items, Creature* creat, Container * cont) {
+	vector<string> temp;
+	istringstream iss(input);
+	string itemHodler;
+	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
+	if (room != nullptr && items != nullptr) {
+		string itemName = items->name;
+		room->itemList.erase(remove_if(room->itemList.begin(), room->itemList.end(), [&itemName](auto & elem) {return elem->name == itemName; }), room->itemList.end());
+		return true;
+	}
+	else if (room != nullptr && creat != nullptr) {
+		string creatName = creat->name;
+		room->creatureList.erase(remove_if(room->creatureList.begin(), room->creatureList.end(), [&creatName](auto & elem) {return elem->name == creatName; }), room->creatureList.end());
+		return true;
+	}
+	else if (cont != nullptr && items != nullptr) {
+		string itemName = items->name;
+		room->itemList.erase(remove_if(cont->itemList.begin(), cont->itemList.end(), [&itemName](auto & elem) {return elem->name == itemName; }), cont->itemList.end());
+		return true;
+	}
+	else if (room != nullptr) {
+		string roomName = room->name;
+		fullParse->Rooms.erase(remove_if(fullParse->Rooms.begin(), fullParse->Rooms.end(), [&roomName](auto & elem) {return elem->name == roomName; }), fullParse->Rooms.end());
+		delRooms.push_back(room->name);
+		return true;
+	}
+	
 }
 
 bool Game::Update(Parser* fullParse, string input, Item * items, Creature * creat, Container * cont) {
@@ -418,31 +414,20 @@ bool Game::Update(Parser* fullParse, string input, Item * items, Creature * crea
 	istringstream iss(input);
 	string itemHodler;
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
-	return true;
+	if (items != nullptr) {
+		items->status = temp[3];
+		return true;
+	}
+	else if (creat != nullptr) {
+		creat->status = temp[3];
+		return true;
+	}
+	else if (cont != nullptr) {
+		cont->status = temp[3];
+		return true;
+	}
+	return false;
 
-}
-string Game::retContainer(Parser * fullParse, string input) {
-	auto hold = find_if(fullParse->Rooms.begin(), fullParse->Rooms.end(), [&input](auto & elem) {return elem->name == input; });
-	if (hold != fullParse->Rooms.end()) {
-		return "room";
-	}
-	auto hold1 = find_if(fullParse->Containers.begin(), fullParse->Containers.end(), [&input](auto & elem) {return elem->name == input; });
-	if (hold1 != fullParse->Containers.end()) {
-		return "container";
-	}
-	return "none";
-}
-
-string Game::retObject(Parser * fullParse, string input) {
-	auto hold = find_if(fullParse->Creatures.begin(), fullParse->Creatures.end(), [&input](auto & elem) {return elem->name == input; });
-	if (hold != fullParse->Creatures.end()) {
-		return "creature";
-	}
-	auto hold1 = find_if(fullParse->Items.begin(), fullParse->Items.end(), [&input](auto & elem) {return elem->name == input; });
-	if (hold1 != fullParse->Items.end()) {
-		return "item";
-	}
-	return "none";
 }
 
 bool Game::executeAct(Parser* fullParse, string input, Room* room, Creature* creat, Item* items, Container* cont) {
@@ -451,12 +436,21 @@ bool Game::executeAct(Parser* fullParse, string input, Room* room, Creature* cre
 	string itemHodler;
 	copy(istream_iterator<string>(iss), istream_iterator<string>(), back_inserter(temp));
 	if (temp[0] == "add" || temp[0] == "Add") {
-		return Add(fullParse, input);
-	}
-	if (temp[0] == "delete" || temp[0] == "Delete") {
-		return Delete(fullParse, input);
-	}
-	if (temp[0] == "update" || temp[0] == "Update") {
+		if (temp[1] == "key") {
+			string key = "key";
+			auto it = find_if(fullParse->Items.begin(),fullParse->Items.end(), [&key](auto & elem) {return elem->name == key; });
+			return Add(fullParse, input, room, *it, nullptr, cont);
+		}
+		else {
+			return Add(fullParse, input, room, items, creat, cont);
+		}
 		
 	}
+	if (temp[0] == "delete" || temp[0] == "Delete") {
+		return Delete(fullParse, input, room, items,creat,cont);
+	}
+	if (temp[0] == "update" || temp[0] == "Update") {
+		return Update(fullParse, input, items, creat, cont);
+	}
+	return false;
 }
