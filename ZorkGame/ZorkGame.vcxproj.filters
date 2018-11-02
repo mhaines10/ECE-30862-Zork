@@ -59,12 +59,24 @@
     <ClCompile Include="Container.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="test1.xml">
+      <Filter>Source Files</Filter>
+    </Xml>
+    <Xml Include="..\..\creaturesample.xml">
+      <Filter>Source Files</Filter>
+    </Xml>
+    <Xml Include="..\..\itemsample.xml">
+      <Filter>Source Files</Filter>
+    </Xml>
+    <Xml Include="..\..\roomsample.xml">
+      <Filter>Source Files</Filter>
+    </Xml>
+    <Xml Include="..\..\triggersample.xml">
+      <Filter>Source Files</Filter>
+    </Xml>
+    <Xml Include="..\..\containersample.xml">
       <Filter>Source Files</Filter>
     </Xml>
   </ItemGroup>
