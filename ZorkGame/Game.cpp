@@ -455,6 +455,12 @@ bool Game::newTrigHand(Parser * fullParse, string input) {
 			attackCreat(fullParse, temp[1], temp[3]);
 			return true;
 		}
+		for (int ll = 0; ll < (*it)->condition.size(); ll++) {
+			if ((*it)->condition[ll].first == temp[3]) {
+				attackCreat(fullParse, temp[1], temp[3]);
+				return true;
+			}
+		}
 		cout << "You assualt the " << temp[1] << " with the " << temp[3] << endl;
 		for (int done = 0; done < (*it)->trigList.size(); done++) {
 			vector<string> temp1;
