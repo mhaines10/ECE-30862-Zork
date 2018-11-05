@@ -31,6 +31,10 @@ void Game::checkInput(Parser * fullParse) {
 	bool errorCheck;
 	cout << "> " ;
 	getline(cin, input);
+	if (input.empty()) {
+		cout << "Error" << endl;
+		return;
+	}
 	errorCheck = newTrigHand(fullParse, input);
 	if ( input == "i") {
 		displayInventory();
@@ -204,14 +208,23 @@ bool Game::putItem(Parser * fullParse, string input) {
 		if (inventory[i]->name == temp[1]) {
 			for (int x = 0; x < currRoom->containerList.size(); x++) {
 				if (currRoom->containerList[x]->name == temp[3]){
-					for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
-						if (currRoom->containerList[x]->acceptList[y] == temp[1]) {
-							currRoom->containerList[x]->itemList.push_back(inventory[i]);
-							string tempName = temp[1];
-							inventory.erase(remove_if(inventory.begin(), inventory.end(), [&tempName](auto & elem) {return elem->name == tempName; }), inventory.end());
-							cout << "Item " << temp[1] << " added to " << temp[3] << endl;
-							return true;
+					if (currRoom->containerList[x]->acceptList.size() > 0) {
+						for (int y = 0; y < currRoom->containerList[x]->acceptList.size(); y++) {
+							if (currRoom->containerList[x]->acceptList[y] == temp[1]) {
+								currRoom->containerList[x]->itemList.push_back(inventory[i]);
+								string tempName = temp[1];
+								inventory.erase(remove_if(inventory.begin(), inventory.end(), [&tempName](auto & elem) {return elem->name == tempName; }), inventory.end());
+								cout << "Item " << temp[1] << " added to " << temp[3] << endl;
+								return true;
+							}
 						}
+					}
+					else {
+						currRoom->containerList[x]->itemList.push_back(inventory[i]);
+						string tempName = temp[1];
+						inventory.erase(remove_if(inventory.begin(), inventory.end(), [&tempName](auto & elem) {return elem->name == tempName; }), inventory.end());
+						cout << "Item " << temp[1] << " added to " << temp[3] << endl;
+						return true;
 					}
 				}
 			}
