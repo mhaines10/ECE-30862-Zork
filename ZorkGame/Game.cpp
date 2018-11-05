@@ -255,6 +255,7 @@ void Game::attackCreat(Parser * fullParse, string Creat, string attackItem) {
 	bool delFlag = true;
 	for (int i = 0; i < currRoom->creatureList.size(); i++) {
 		if (currRoom->creatureList[i]->name == Creat) {
+			cout << "You assualt the " << Creat << " with the " << attackItem << endl;
 			for (int k = 0; k < inventory.size(); k++) {
 				if (inventory[k]->name == attackItem) {
 					for (int j = 0; j < currRoom->creatureList[i]->vulnerability.size(); j++) {
